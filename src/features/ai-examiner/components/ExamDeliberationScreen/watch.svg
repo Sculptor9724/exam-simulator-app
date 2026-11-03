@@ -1,0 +1,39 @@
+<svg width="300" height="300" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
+
+  <!-- Clock frame -->
+  <circle cx="150" cy="150" r="140" fill="#f4f4f4" stroke="#333" stroke-width="6"></circle>
+
+  <!-- Clock face -->
+  <circle cx="150" cy="150" r="125" fill="white" stroke="#ccc" stroke-width="2"></circle>
+
+  <!-- Hour marks -->
+  <g stroke="#333" stroke-width="4" stroke-linecap="round">
+    <line x1="150" y1="35" x2="150" y2="55"></line>
+    <line x1="150" y1="245" x2="150" y2="265"></line>
+    <line x1="35" y1="150" x2="55" y2="150"></line>
+    <line x1="245" y1="150" x2="265" y2="150"></line>
+  </g>
+
+  <!-- Minute marks -->
+  <g stroke="#666" stroke-width="2" stroke-linecap="round">
+    <line x1="225" y1="75" x2="235" y2="65"></line>
+    <line x1="225" y1="225" x2="235" y2="235"></line>
+    <line x1="75" y1="75" x2="65" y2="65"></line>
+    <line x1="75" y1="225" x2="65" y2="235"></line>
+  </g>
+
+  <!-- Hands -->
+  <!-- Hour hand -->
+  <line x1="150" y1="150" x2="150" y2="95" stroke="#111" stroke-width="8" stroke-linecap="round"></line>
+
+  <!-- Minute hand -->
+  <line x1="150" y1="150" x2="210" y2="150" stroke="#111" stroke-width="5" stroke-linecap="round"></line>
+
+  <!-- Red second hand -->
+  <line x1="150" y1="160" x2="150" y2="60" stroke="red" stroke-width="2.5" stroke-linecap="round"></line>
+
+  <!-- Center pivot -->
+  <circle cx="150" cy="150" r="6" fill="red"></circle>
+  <circle cx="150" cy="150" r="2.5" fill="white"></circle>
+
+</svg>

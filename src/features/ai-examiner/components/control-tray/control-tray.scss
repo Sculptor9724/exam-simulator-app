@@ -1,0 +1,85 @@
+/* AI Voice Exam modification notice: this file has been adapted locally.
+ * Retains Apache-2.0 licensing; see THIRD_PARTY_NOTICES.md for provenance.
+ */
+@property --volume {
+  syntax: "length";
+  inherit: false;
+  initial-value: 0px;
+}
+
+.disabled .mic-button,
+.mic-button.disabled {
+  &:before {
+    background: rgba(0, 0, 0, 0);
+  }
+}
+
+.mic-button {
+  position: relative;
+  background-color: var(--accent-red);
+  z-index: 1;
+  color: black;
+  transition: all 0.2s ease-in;
+}
+
+.connect-toggle {
+  &:focus {
+    border: 2px solid var(--Neutral-20);
+    outline: 2px solid var(--Neutral-80);
+  }
+
+  &:not(.connected) {
+    background-color: var(--Blue-500);
+    color: var(--Neutral-5);
+  }
+}
+
+.control-tray {
+  gap: 8px;
+  padding-bottom: 18px;
+
+  .disabled .action-button,
+  .action-button.disabled {
+    background: rgba(0, 0, 0, 0);
+    color: var(--Neutral-30);
+  }
+
+  .connection-container {
+
+    .connection-button-container {
+      border-radius: 27px;
+      border: 1px solid var(--Neutral-30);
+      padding: 10px;
+    }
+
+    .text-indicator {
+      font-size: 11px;
+      color: var(--Blue-500);
+      user-select: none;
+    }
+
+    &:not(.connected) {
+      .text-indicator {
+        opacity: 0;
+      }
+    }
+  }
+}
+
+.actions-nav {
+  transition: all 0.6s ease-in;
+}
+
+@keyframes opacity-pulse {
+  0% {
+    opacity: 0.9;
+  }
+
+  50% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0.9;
+  }
+}
