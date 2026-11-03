@@ -1,0 +1,18 @@
+AI Voice Exam frontend
+
+Includes code and assets derived from Google's Multimodal Live API Web Console.
+Copyright 2024 Google LLC, as stated in retained upstream headers.
+https://github.com/google-gemini/multimodal-live-api-web-console
+Licensed under Apache License 2.0; see LICENSES/Apache-2.0.txt.
+Local adaptations are identified in THIRD_PARTY_NOTICES.md.
+This attribution was prepared for AI Voice Exam; it is not an upstream NOTICE file.
+
+Includes inline Heroicons SVG geometry.
+Copyright (c) 2020 Refactoring UI Inc.
+MIT License; see LICENSES/Heroicons-MIT.txt.
+
+Includes inline Tabler dots-vertical SVG geometry.
+Copyright (c) 2020-2022 Paweł Kuna.
+MIT License; see LICENSES/Tabler-MIT.txt.
+
+Containing files and comparison sources are listed in THIRD_PARTY_NOTICES.md.
