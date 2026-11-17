@@ -1,102 +1,139 @@
-# AI Voice Exam
+# API Key Server
 
-A modern application that helps students prepare for oral exams by simulating realistic exam environments using AI-powered examiners.
+An Express API for exam-related tools. It generates examiner questions, grades
+exam transcripts, prepares project-defense questions from PDFs or GitHub
+repositories, and issues short-lived Gemini Live API tokens.
 
-## Features
+## Requirements
 
-- **Dynamic Exam Environments**: Practice with various exam types including standard and Github repository-based exams
-- **Customizable Examiners**: Choose friendly, strict, or other examiner personalities 
-- **Real-time Feedback**: Get immediate evaluation of your performance
-- **Adjustable Duration**: Set custom time limits for your practice sessions
-- **Countdown Timer**: Visual tracking of your remaining exam time
-- **Learning Goal Assessment**: Customize which competencies you want to be evaluated on
-- **Multiple Grading Systems**: Support for 7-point scale, pass/fail, and more
+- Node.js (the version selected for this project is recorded in `.nvmrc`)
+- npm
+- API credentials and service configuration for the features you want to use
 
-## Setup
+## Run locally
 
-### Prerequisites
-- Node.js 20 or later (tested with Node 22.10.0)
-- npm (tested with npm 11.1.0; use the committed package-lock.json)
-- Chrome browser (recommended for optimal experience)
+```bash
+npm install
+cp .env.example .env
+```
 
-### Getting Started
+Add your credentials to `.env`. Do not commit this file or put credentials in
+client-side code. Start the server with:
 
-1. Check out this repository and install the locked frontend dependencies:
-   ```sh
-   npm ci
-   ```
-2. Follow [database setup](docs/database-setup.md) to start a separate local
-   Supabase instance and apply the migrations.
-3. Copy `.env.example` to `.env.local` and fill in your local Supabase URL and
-   anon/publishable key from `supabase status`. Set `REACT_APP_API_URL` to your
-   AI backend's URL (see [AI backend](#ai-backend)); it must be `https://`, or
-   `http://` only for localhost, with no credentials, query, or fragment.
-4. Start the frontend:
-   ```sh
-   npm start
-   ```
-5. Open the URL printed by the development server (normally http://localhost:3000).
+```bash
+npm run dev
+```
 
-AI sessions additionally require the separate `api-key-server` backend (see
-[AI backend](#ai-backend)). Database setup alone does not configure the voice
-integration.
+The server listens on port `3002` by default. Use `npm start` to run it without
+the development file watcher. Set `PORT` to change the port.
 
-## AI backend
+## Configuration
 
-The AI features use a separate backend, [`api-key-server`](https://github.com/Sculptor9724/api-key-server),
-which lives in its own repository and is not part of this one.
+| Variable | Required for | Description |
+| --- | --- | --- |
+| `GEMINI_API_KEY` | Gemini endpoints | Google Gemini API key |
+| `GEMINI_MODEL` | Optional | Gemini model name; defaults to `gemini-3.8-flash` |
+| `GITHUB_API_KEY` | GitHub repository input | GitHub token used to read repository contents |
+| `SUPABASE_URL` | Authenticated routes and account deletion | Supabase project URL |
+| `SUPABASE_PUBLISHABLE_KEY` | Authenticated routes and account deletion | Supabase publishable key used to validate access tokens |
+| `SUPABASE_SECRET_KEY` | Account deletion | Backend-only Supabase secret key; never expose it to clients |
+| `DATABASE_URL` | `/can-connect` | PostgreSQL connection string |
+| `PORT` | Optional | HTTP port; defaults to `3002` |
+| `NODE_ENV` | Optional | Set to `development` for local work and `production` when deployed |
+| `JSON_BODY_LIMIT` | Optional | Maximum JSON request size; defaults to `10mb` |
+| `FORM_BODY_LIMIT` | Optional | Maximum URL-encoded request size; defaults to `10mb` |
+| `DISABLE_AUTH` | Local development only | Set to `true` to bypass auth outside production; never enable in production |
 
-- **Location:** https://github.com/Sculptor9724/api-key-server
-- **License:** MIT, Copyright (c) 2025 EK - Erhvervsakademi København (see its `LICENSE`)
-- **Role:** Express API for examiner questions, grading, project defense, and
-  Gemini Live tokens. Keeps AI-provider keys on the server.
-- **Local run:** follow that repository's README; it listens on port 3002 by default.
+Some endpoints require a database table named `exam_logs`.
+`/can-connect` reads it to enforce the daily exam limit.
 
-`REACT_APP_API_URL` is required: the app throws at startup if it is missing.
-During local development use `http://127.0.0.1:3002` (the backend's default
-port). Deployed backends must use HTTPS. Never put AI-provider keys in frontend
-environment variables.
+## API
 
-## Usage
-1. From the dashboard, select an exam type or create a new custom exam
-2. Configure exam settings (duration, examiner type, learning goals)
-3. Start the exam and practice answering questions
-4. Receive feedback and a grade at the end of your session
-5. Review your performance and try again to improve
+Protected endpoints require a Supabase access token in the `Authorization`
+header using the Bearer scheme. Authentication is enforced on these routes:
 
-## Database setup
+| Method and path | Description |
+| --- | --- |
+| `GET /auth-token` | Creates a short-lived Gemini Live API token |
+| `GET /can-connect` | Returns whether exam generation is currently allowed |
+| `POST /get-examiner-questions` | Generates a student exam task |
+| `POST /get-grade-and-feedback` | Extracts a grade and feedback from an examiner transcript |
+| `POST /project-defense` | Generates project-defense questions using a GitHub repository and/or PDF files |
 
-Follow [database setup](docs/database-setup.md) for a new local database.
-Do not push the reconstructed baseline to an existing database.
+### Generate an examiner task
 
-## Deploy
-`npm run deploy`
+`POST /get-examiner-questions` accepts JSON. `learning_goals`, `title`, and
+`duration` are required; the remaining fields are optional.
 
-## Structure
-Application source code is in the `src` folder.
+```json
+{
+  "learning_goals": "Understand the system architecture",
+  "title": "Software architecture",
+  "duration": 30,
+  "description": "An oral examination about the submitted project",
+  "typical_questions": "Discuss design trade-offs",
+  "examples": "Example task text",
+  "task_generation_instructions": "Keep the task focused"
+}
+```
 
-## Contributing
-Contributions are welcome! Please feel free to submit a Pull Request.
+### Grade a transcript
 
-## Licensing and release status
+`POST /get-grade-and-feedback` accepts JSON with a required `text` transcript.
+An optional `exam` object can include `title`, `description`,
+`learning_goals`, and `grade_criteria`.
 
-Original AI Voice Exam code is licensed under the [MIT license](LICENSE), with EK
-(Erhvervsakademi København) as copyright holder.
-Google-derived files and local adaptations remain **Apache-2.0**. This is a
-combination of licenses (`MIT AND Apache-2.0`), not permission to choose either
-license for every file. See [the exact file inventory](THIRD_PARTY_NOTICES.md)
-and [the full Apache license](LICENSES/Apache-2.0.txt).
+```json
+{
+  "text": "The student explained the design clearly. I would give a grade of 10.",
+  "exam": {
+    "title": "Software architecture",
+    "learning_goals": "Explain architectural decisions"
+  }
+}
+```
 
-The hosted service and third-party services are separate from the code license;
-self-hosting requires your own setup.
-Build distributions must retain the generated `licenses/` directory.
+### Generate project-defense questions
 
-Copy `.env.example` to `.env.local` and configure your own Supabase instance;
-the original production database is not a development default. Set
-`REACT_APP_API_URL` to your separate backend URL; there is no hosted API fallback.
+`POST /project-defense` uses `multipart/form-data`. Include `learning_goals`
+and a `duration` from 1 to 240 minutes. Supply at least one PDF using the
+`files` field, a GitHub repository URL in `repoUrl`, or both. Optional text
+fields include `typical_questions`, `description`, `grade_criteria`, and
+`feedback`. The endpoint accepts up to 10 uploaded files.
 
-## Known limitations
+### Delete the authenticated account
 
-Dependency-security findings remain unresolved. Full Supabase authentication and
-backend/voice integration have not been verified for a fresh installation.
-Developers should review dependencies and test their deployment before hosting it.
+`DELETE /api/me` requires a Supabase bearer access token. It deletes the account
+belonging to that token; it does not accept a user ID from the caller. Call it
+only after your client has confirmed the user's intent.
+
+## Authentication and CORS
+
+The browser CORS allowlist is configured in `index.js`. If your frontend uses a
+different origin, add it there before making browser requests. Requests without
+an `Origin` header are allowed for non-browser clients.
+
+`DISABLE_AUTH=true` bypasses route authentication only when `NODE_ENV` is not
+`production`. Do not use this setting in a deployed production environment.
+
+## Tests
+
+```bash
+npm test
+npm run test:watch
+npm run test:coverage
+```
+
+Some tests make live requests to GitHub and require network access and a
+working GitHub token. The Gemini-dependent tests also need `GEMINI_API_KEY`.
+
+## Deployment
+
+The repository includes Vercel configuration in `vercel.json`. Configure the
+required environment variables in the deployment platform; do not upload or
+commit your local `.env` file. Ensure the database tables and CORS origins
+required by your deployment are configured.
+
+## License
+
+This project is released under the MIT License. See [LICENSE](./LICENSE).
